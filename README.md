@@ -1,3 +1,11 @@
 # INTE2401-SecretSharing
 
-JS Code for Shamir Secret Sharing for Cloud Security Assignment 3, Question 2.
+Cloud Security, Assignment 3, Question 2
+
+Author: Daniel Viglietti s3844180
+
+Date: 20/05/2022
+
+JavaScript Web Interface for Paillier Encryption Algorithm
+
+Dependencies: BigInteger.js library
