@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTE2401-SecretSharing</title>
+
+</head>
+<body>
+    <!-- Q2.1 and 2.2 - Shares -->
+    <h2>Shamir Secret Sharing</h2>
+    <h3>Enter Parameters and Generate Shares</h3>
+    <p>For the sake of the assignment, my values are pre-filled, but you can replace them with yours!</p>
+    Modulo (P): <input class="input" id="p" name="p" value="13352826732669014527488179923136977643781390478044075347151781074757530263668097987446592168022121547042204434939340232187839019278887250619351655922118379"><br><br>
+    Coefficient A1: <input class="input" id="a" name="a" value="3844180"><br><br>
+    Coefficient A2: <input class="input" id="b" name="b" value="9584959595"><br><br>
+    Secret: <input class="input" id="secret" name="secret" value="13352826732669014527488179923136977643781390478044075347151781074757530263668097987446592168022121547042204434939340232187839019278887250619351655922117443"><br><br>
+
+    <button type="button" onclick="share()">Generate Shares</button><br><br>
+    <strong><div>Generated Shares:</div></strong><br>
+    <div id="shares" name="shares"> </div><br>
+    <hr>
+
+    <!-- Q2.3 Recovery -->
+    <h3>Recover Original Secret with Shares (1, 2 and 4)</h3>
+    <button type="button" onclick="recover()">Recover Secret</button><br><br>
+    <div id="recovered" name="recovered">Recovered secret: </div><br><br>
+
+    <script src="biginteger.js"></script>
+
+    <script type="text/javascript">
+        var share1;
+        var share2;
+        var share3;
+        var share4;
+
+        function share() {
+            // Pull variables
+            var p=document.getElementById("p").value;
+            var a=document.getElementById("a").value;
+            var b=document.getElementById("b").value;
+            var secret=document.getElementById("secret").value;
+
+            // Convert to big Int
+            p = bigInt(p);
+            a = bigInt(a);
+            b = bigInt(b);
+            secret = bigInt(secret);
+            
+            // SHARE 1
+            var x = bigInt(1);
+            var xSquared = bigInt(x.pow(2));
+
+            // Individual calculations
+            var share1min = secret.add(a); // s + a
+            share1min = share1min.multiply(x); // a * x
+            share1min = share1min.add(b); // + b
+            share1min = share1min.multiply(xSquared); // * x^2
+
+            // Mod to get share
+            share1 = bigInt(mod(share1min, p));
+            var share1out = "(1, " + share1.toString(10) + ")";
+            //console.log(share1out);
+
+            // SHARE 2
+            var x = bigInt(2);
+            var xSquared = bigInt(x.pow(2));
+
+            // Individual calculations
+            var aMultiplied = a.multiply(x);
+            var bMultiplied = b.multiply(xSquared);
+            var abAddition = aMultiplied.add(bMultiplied);
+            var share2min = abAddition.add(secret);
+
+            // Mod to get share
+            share2 = bigInt(mod(share2min, p));
+            var share2out = "(2, " + share2.toString(10) + ")";
+            //console.log(share2out);
+
+            // SHARE 3
+            var x = bigInt(3);
+            var xSquared = bigInt(x.pow(2));
+
+            // Individual calculations
+            var aMultiplied = a.multiply(x);
+            var bMultiplied = b.multiply(xSquared);
+            var abAddition = aMultiplied.add(bMultiplied);
+            var share3min = abAddition.add(secret);
+
+            // Mod to get share
+            share3 = bigInt(mod(share3min, p));
+            var share3out = "(3, " + share3.toString(10) + ")";
+            //console.log(share3out);
+
+            // SHARE 4
+            var x = bigInt(4);
+            var xSquared = bigInt(x.pow(2));
+
+            // Individual calculations
+            var aMultiplied = a.multiply(x);
+            var bMultiplied = b.multiply(xSquared);
+            var abAddition = aMultiplied.add(bMultiplied);
+            var share4min = abAddition.add(secret);
+
+            // Mod to get share
+            share4 = bigInt(mod(share4min, p));
+            var share4out = "(4, " + share4.toString(10) + ")";
+            //console.log(share4out);
+
+            // OUTPUT SHARES
+            document.getElementById("shares").innerHTML = share1out + "<br>" + share2out + "<br>" + share3out + "<br>" + share4out;
+        }
+
+        function recover() {
+            var p=document.getElementById("p").value;
+            p = bigInt(p);
+            var secret=document.getElementById("secret").value;
+            secret = bigInt(secret);
+
+            // 3^-1 mod P
+            var threeInverse = bigInt("4450942244223004842496059974378992547927130159348025115717260358252510087889365995815530722674040515680734811646446744062613006426295750206450551974039460");
+
+            // Share 1 reverse
+            var share1min = share1.multiply(bigInt(8));
+            var share1reverse = share1min.multiply(threeInverse);
+
+            // Share 2 reverse
+            var share2reverse = share2.multiply(bigInt(2));
+
+            // Share 4 reverse
+            var share4reverse = share4.multiply(threeInverse);
+
+            // F0
+            var f0min = bigInt(share1reverse.subtract(share2reverse));
+            var f0min = f0min.add(share4reverse);
+            var f0 = mod(f0min, p);
+            
+            // OUTPUT SECRET
+            document.getElementById("recovered").innerHTML = "Recovered secret: " + f0.toString(10);
+        }
+
+        // Other functions
+        function mod(a, b) {
+            var result = a.mod(b);
+            if (result.isNegative())
+                result = result.add(b);
+            return result;
+        }
+    </script>
+
+    <style>
+        body {
+            width:100%;
+        }
+
+        .input {
+            width:1000px;
+        }
+    </style>
+</body>
+</html>
